@@ -29,7 +29,7 @@ const AuthProvider = ({ children }) => {
   // 🔥 Updated logout
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
+      await fetch('http://localhost:5000/api/auth/logout', {
         method: 'POST',
         credentials: 'include', // very important to send cookies!
       });

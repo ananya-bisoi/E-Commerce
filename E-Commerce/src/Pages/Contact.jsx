@@ -17,14 +17,34 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    toast.success('Message sent!', {
-      position: 'top-center',
-      autoClose: 2000,
+    try {
+    const res = await fetch('http://localhost:5000/api/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
     });
-    setFormData({ name: '', email: '', mobile: '', message: '' });
-  };
+
+    const data = await res.json();
+    if (res.ok) {
+      toast.success(data.msg || 'Message sent!', {
+        position: 'top-center',
+        autoClose: 2000,
+      });
+      setFormData({ name: '', email: '', mobile: '', message: '' });
+    } else {
+      toast.error(data.error || 'Something went wrong!');
+    }
+  } catch (err) {
+    console.error("contact form error",err);
+    
+    toast.error('Failed to send message!');
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-50 to-purple-100 px-4 pt-20 pb-10">

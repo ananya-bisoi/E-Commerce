@@ -1,29 +1,21 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaHeart, FaShoppingCart, FaSearch } from 'react-icons/fa';
+import { FaHeart, FaShoppingCart } from 'react-icons/fa';
 import logo from '../../Images/logo.jpg';
 import { AuthContext } from '../../Context/AuthContext';
 
 const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const searchRef = useRef(null);
-  const dropdownRef = useRef(null);
   const { loggedInUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const firstLetter = loggedInUser?.username?.charAt(0)?.toUpperCase() || '';
 
+  const dropdownRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target)
-      ) {
-        setShowSearch(false);
-      }
-
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target)
@@ -52,41 +44,13 @@ const Nav = () => {
         {/* Desktop Nav */}
         <nav className="hidden lg:flex flex-grow justify-end">
           <ul className="flex gap-6 items-center text-gray-700 font-medium relative">
-            {/* 🔍 Search */}
-            <li ref={searchRef} className="relative transition-all duration-300">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                    showSearch ? 'w-64 opacity-100' : 'w-0 opacity-0'
-                  }`}
-                >
-                  <input
-                    type="text"
-                    autoFocus={showSearch}
-                    placeholder="Search here..."
-                    className="w-full px-4 py-1.5 border border-blue-500 rounded-full focus:outline-none transition-all"
-                  />
-                </div>
-
-                {!showSearch && (
-                  <button
-                    onClick={() => setShowSearch(true)}
-                    className="backdrop-blur-md bg-white/30 border border-gray-200 p-2 rounded-full shadow-md hover:bg-white/50 transition"
-                    title="Search"
-                  >
-                    <FaSearch className="text-gray-700" />
-                  </button>
-                )}
-              </div>
-            </li>
-
             {/* Nav Items */}
-            <li><NavLink to="/" className="hover:text-blue-600">Home</NavLink></li>
-            <li><NavLink to="/about" className="hover:text-blue-600">About</NavLink></li>
-            <li><NavLink to="/product" className="hover:text-blue-600">Product</NavLink></li>
-            <li><NavLink to="/wishlist" className="hover:text-red-600 text-xl"><FaHeart /></NavLink></li>
-            <li><NavLink to="/cart" className="hover:text-blue-600 text-xl"><FaShoppingCart /></NavLink></li>
-            <li><NavLink to="/contact" className="hover:text-blue-600">Contact</NavLink></li>
+            <li><NavLink to="/" className={({ isActive }) => isActive ?"text-violet-500 font-bold" : "hover:text-blue-600"}>Home</NavLink></li>
+            <li><NavLink to="/about" className={({ isActive }) => isActive ?"text-violet-500 font-bold" : "hover:text-blue-600"}>About</NavLink></li>
+            <li><NavLink to="/product" className={({ isActive }) => isActive ?"text-violet-500 font-bold" : "hover:text-blue-600"}>Product</NavLink></li>
+            <li><NavLink to="/wishlist" className={({ isActive }) => isActive ?"text-red-600 font-bold" : "hover:text-red-600"}><FaHeart /></NavLink></li>
+            <li><NavLink to="/cart" className={({ isActive }) => isActive ?"text-blue-500 font-bold" : "hover:text-blue-600"}><FaShoppingCart /></NavLink></li>
+            <li><NavLink to="/contact" className={({ isActive }) => isActive ?"text-violet-500 font-bold" : "hover:text-blue-600"}>Contact</NavLink></li>
 
             {/* Profile or Login */}
             {loggedInUser ? (
@@ -145,13 +109,6 @@ const Nav = () => {
       {isOpen && (
         <div className="lg:hidden bg-white shadow-md px-6 py-4">
           <ul className="flex flex-col gap-4 text-gray-700 font-medium">
-            <li>
-              <input
-                type="text"
-                placeholder="Search here..."
-                className="w-full px-4 py-2 border rounded-full focus:outline-none"
-              />
-            </li>
             <li><NavLink to="/" onClick={() => setIsOpen(false)}>Home</NavLink></li>
             <li><NavLink to="/about" onClick={() => setIsOpen(false)}>About</NavLink></li>
             <li><NavLink to="/product" onClick={() => setIsOpen(false)}>Product</NavLink></li>
