@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../Context/AuthContext.jsx';
+import { validateLoginForm } from '../Utils/formValidators.js';
 
 const loginFields = [
   { name: 'email', type: 'email', placeholder: 'Enter your email', label: 'Email address' },
@@ -19,10 +20,19 @@ const Login = () => {
     setError('');
   };
 
+  const validateForm = () => {
+    const validationErrors = validateLoginForm(formData);
+    setError(validationErrors.email || validationErrors.password || '');
+    return Object.keys(validationErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+      if (!validateForm()) return;
+      
     try {
+      // console.log('Submitting form data:', formData);
+
       const res = await axios.post('http://localhost:5000/api/auth/login', formData, {
         withCredentials: true,
       });

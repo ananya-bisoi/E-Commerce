@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { toast, ToastContainer, Slide } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserContext from '../Context/UserContext';
 
@@ -26,24 +26,51 @@ const Cart = () => {
     setShowAddressForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.success(
-      <div className="flex items-center gap-2">
-        <span>🎉 Order placed successfully!</span>
-      </div>,
-      {
-        position: 'top-center',
+
+    const orderData = {
+      items: cartItems,
+      totalAmount: totalPrice,
+      address: `${address.fullName}, ${address.phone}, ${address.addressLine}, ${address.pincode}`,
+    };
+
+    try {
+      const res = await fetch('http://localhost:5000/api/orders/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(
+          <div className="flex items-center gap-2">
+            <span>🎉 Order placed successfully!</span>
+          </div>,
+          {
+            position: 'top-center',
+          }
+        );
+        setCartItems([]);
+        setShowAddressForm(false);
+        setAddress({
+          fullName: '',
+          phone: '',
+          addressLine: '',
+          pincode: '',
+        });
+      } else {
+        toast.error(data.msg || 'Something went wrong');
       }
-    );
-    setShowAddressForm(false);
-    setAddress({
-      fullName: '',
-      phone: '',
-      addressLine: '',
-      pincode: '',
-    });
-    setCartItems([]);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to place order');
+    }
   };
 
   return (

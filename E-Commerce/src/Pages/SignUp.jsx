@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {validateRegisterForm} from '../Utils/formValidators.js'
 
 const signupFields = [
-  { name: 'email', type: 'email', placeholder: 'Enter your email' },
   { name: 'username', type: 'text', placeholder: 'Enter your full name'},
+  { name: 'email', type: 'email', placeholder: 'Enter your email' },
   { name: 'password', type: 'password', placeholder: 'Create a password'},
 ];
 
@@ -15,14 +16,9 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const validateForm = () => {
-    const newErrors = {};
-    if (!formData.email?.trim()) newErrors.email = 'Email is required.';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Enter a valid email.';
-    if (!formData.username?.trim()) newErrors.username = 'Full name is required.';
-    if (!formData.password) newErrors.password = 'Password is required.';
-    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validationErrors = validateRegisterForm(formData);
+  setErrors(validationErrors);
+  return Object.keys(validationErrors).length === 0;
   };
 
   const handleChange = (e) => {
