@@ -1,3 +1,5 @@
+// src/context/AuthContext.jsx
+
 import React, { createContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -13,7 +15,7 @@ const AuthProvider = ({ children }) => {
         setLoggedInUser(parsedUser);
       } catch (err) {
         console.warn('Failed to parse user from localStorage:', err);
-        localStorage.removeItem('user');  // clean bad data
+        localStorage.removeItem('user'); // clean bad data
         setLoggedInUser(null);
       }
     }
@@ -24,9 +26,19 @@ const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = () => {
-    setLoggedInUser(null);
+  // 🔥 Updated logout
+  const logout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // very important to send cookies!
+      });
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+
     localStorage.removeItem('user');
+    setLoggedInUser(null);
   };
 
   return (

@@ -1,10 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import UserContext from '../Context/UserContext';
+import {toast} from 'react-toastify'
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../Context/AuthContext';
+import { UserContext } from '../Context/UserContextProvider';
 
 const Cart = () => {
+  const { loggedInUser } = useContext(AuthContext);
   const { cartItems, setCartItems } = useContext(UserContext);
+  const navigate = useNavigate();
+
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [address, setAddress] = useState({
     fullName: '',
@@ -22,14 +26,34 @@ const Cart = () => {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
 
-  const handleCheckoutClick = () => {
+const handleCheckoutClick = () => {
+  if (!loggedInUser) {
+    toast.warning('Please login to place an order.');
+    setTimeout(() => {
+      navigate('/login');
+    }, 2000); // delay redirect to allow toast to show
+    return;
+  }
+
+    if (cartItems.length === 0) {
+      toast.warning('Your cart is empty.');
+      return;
+    }
+
     setShowAddressForm(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!loggedInUser) {
+      toast.error('You must be logged in to place an order.');
+      navigate('/login');
+      return;
+    }
+
     const orderData = {
+      userId: loggedInUser._id, // make sure this exists
       items: cartItems,
       totalAmount: totalPrice,
       address: `${address.fullName}, ${address.phone}, ${address.addressLine}, ${address.pincode}`,
@@ -41,7 +65,7 @@ const Cart = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
+        credentials: 'include', // send cookie (important)
         body: JSON.stringify(orderData),
       });
 
@@ -75,7 +99,6 @@ const Cart = () => {
 
   return (
     <div className="pt-28 px-6 min-h-screen mb-10 max-w-7xl mx-auto">
-      <ToastContainer />
       <h1 className="text-3xl font-semibold mb-8 text-center">Your Cart</h1>
 
       {cartItems.length === 0 ? (

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import logo from '../Images/logo.jpg'
 
 const Contact = () => {
@@ -130,7 +129,6 @@ const Contact = () => {
             Send Message
           </button>
         </form>
-        <ToastContainer />
       </div>
     </div>
   );

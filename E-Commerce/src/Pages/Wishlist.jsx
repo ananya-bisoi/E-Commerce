@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import WishlistContext from '../Context/WishlistContext';
-import UserContext from '../Context/UserContext';
+import {UserContext} from '../Context/UserContextProvider';
 import { FaTrashAlt } from 'react-icons/fa';
 
 const Wishlist = () => {

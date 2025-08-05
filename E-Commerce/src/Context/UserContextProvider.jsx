@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import UserContext from './UserContext';
+// src/context/UserContext.jsx
+import React, { createContext, useState } from 'react';
+
+const UserContext = createContext();
 
 const UserContextProvider = ({ children }) => {
-  const [user, setUser] = useState([]); // Registered users
-  const [loggedInUser, setLoggedInUser] = useState(null); // 🔥 Track current user
+  const [user, setUser] = useState([]); // registered users list
   const [cartItems, setCartItems] = useState([]);
 
   const addToCart = (product) => {
@@ -22,7 +23,7 @@ const UserContextProvider = ({ children }) => {
         {
           ...product,
           quantity: product.quantity || 1,
-          id: product.id || Date.now() + Math.random(), // fallback unique ID
+          id: product.id || Date.now() + Math.random(),
         }
       ];
     });
@@ -32,15 +33,13 @@ const UserContextProvider = ({ children }) => {
     <UserContext.Provider value={{
       user,
       setUser,
-      loggedInUser,        // ✅ provide current user
-      setLoggedInUser,     // ✅ provide setter function
       cartItems,
       setCartItems,
-      addToCart
+      addToCart,
     }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export default UserContextProvider;
+export { UserContextProvider, UserContext };

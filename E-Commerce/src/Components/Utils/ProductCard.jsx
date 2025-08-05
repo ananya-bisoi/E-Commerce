@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { FaHeart } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import WishlistContext from '../../Context/WishlistContext'; 
-import UserContext from '../../Context/UserContext';
+import {UserContext} from '../../Context/UserContextProvider';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();

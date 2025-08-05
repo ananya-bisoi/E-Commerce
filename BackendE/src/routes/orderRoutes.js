@@ -6,6 +6,10 @@ const router = express.Router();
 
 // 🔹 POST /api/orders/create
 router.post('/create', auth, async (req, res) => {
+    // auth middleware sets req.user if token valid, else returns 401
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ msg: 'Unauthorized. Please login first.' });
+  }
   const { items, totalAmount, address } = req.body;
   try {
     const order = new Order({
