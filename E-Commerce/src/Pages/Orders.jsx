@@ -66,16 +66,13 @@ const Orders = () => {
                 key={order._id}
                 className="bg-white shadow-md rounded-lg border border-gray-200"
               >
-                {/* Order Header */}
                 <button
                   onClick={() => toggleExpand(order._id)}
                   className="w-full flex justify-between items-center px-6 py-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   aria-expanded={isExpanded}
                 >
                   <div>
-                    <h2 className="text-xl font-semibold">
-                      Order ID: {order._id}
-                    </h2>
+                    <h2 className="text-xl font-semibold">Order ID: {order._id}</h2>
                     <p className="text-sm text-gray-600">
                       Placed on: {new Date(order.createdAt).toLocaleString()}
                     </p>
@@ -94,22 +91,31 @@ const Orders = () => {
                   </svg>
                 </button>
 
-                {/* Collapsible Content */}
                 {isExpanded && (
                   <div className="px-6 pb-6 space-y-4">
+                    {/* Shipping Address */}
                     <p className="text-sm mb-2 font-medium text-gray-800">
-                      Shipping Address: {order.address}
+                      Shipping Address:{' '}
+                      {typeof order.address === 'string'
+                        ? order.address
+                        : `${order.address.fullName}, ${order.address.phone}, ${order.address.addressLine}, ${order.address.pincode}`}
                     </p>
 
+                    {/* Payment Method */}
+                    <p className="text-sm mb-2 font-medium text-gray-800">
+                      Payment Method: {order.paymentMethod || 'Cash on Delivery'}
+                    </p>
+
+                    {/* Items */}
                     <div className="space-y-3">
                       {order.items.map((item, index) => (
                         <div
-                          key={index}
+                          key={item.productId ? item.productId.toString() : `item-${index}`}
                           className="flex items-center justify-between gap-4 border-b pb-3"
                         >
                           <img
-                            src={item.image}
-                            alt={item.productName}
+                            src={item.image || '/default-product-image.png'}
+                            alt={item.productName || 'Product'}
                             className="w-16 h-16 object-contain rounded border"
                           />
                           <div className="flex-1">
@@ -131,7 +137,7 @@ const Orders = () => {
                       Total: ₹{order.totalAmount.toLocaleString()}
                     </div>
 
-                    {/* Cancel button */}
+                    {/* Cancel Button */}
                     <div className="text-right mt-4">
                       <button
                         onClick={() => handleCancel(order._id)}

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import {toast} from 'react-toastify'
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../Context/AuthContext';
 import { UserContext } from '../Context/UserContextProvider';
@@ -15,6 +15,7 @@ const Cart = () => {
     phone: '',
     addressLine: '',
     pincode: '',
+    paymentMethod: 'Cash on Delivery', // pre-selected
   });
 
   const totalPrice = cartItems.reduce(
@@ -26,14 +27,14 @@ const Cart = () => {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
 
-const handleCheckoutClick = () => {
-  if (!loggedInUser) {
-    toast.warning('Please login to place an order.');
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000); // delay redirect to allow toast to show
-    return;
-  }
+  const handleCheckoutClick = () => {
+    if (!loggedInUser) {
+      toast.warning('Please login to place an order.');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      return;
+    }
 
     if (cartItems.length === 0) {
       toast.warning('Your cart is empty.');
@@ -52,12 +53,25 @@ const handleCheckoutClick = () => {
       return;
     }
 
-    const orderData = {
-      userId: loggedInUser._id, // make sure this exists
-      items: cartItems,
-      totalAmount: totalPrice,
-      address: `${address.fullName}, ${address.phone}, ${address.addressLine}, ${address.pincode}`,
-    };
+const orderData = {
+  userId: loggedInUser._id,
+  items: cartItems.map(item => ({
+    productId: item._id || item.id,
+    productName: item.productName || item.name, // ✅ Ensure name stored
+    image: item.image, // ✅ Ensure image stored
+    price: item.price,
+    quantity: item.quantity
+  })),
+  totalAmount: totalPrice,
+  address: {
+    fullName: address.fullName,
+    phone: address.phone,
+    addressLine: address.addressLine,
+    pincode: address.pincode
+  },
+  paymentMethod: address.paymentMethod,
+};
+
 
     try {
       const res = await fetch('http://localhost:5000/api/orders/create', {
@@ -65,7 +79,7 @@ const handleCheckoutClick = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // send cookie (important)
+        credentials: 'include',
         body: JSON.stringify(orderData),
       });
 
@@ -76,9 +90,7 @@ const handleCheckoutClick = () => {
           <div className="flex items-center gap-2">
             <span>🎉 Order placed successfully!</span>
           </div>,
-          {
-            position: 'top-center',
-          }
+          { position: 'top-center' }
         );
         setCartItems([]);
         setShowAddressForm(false);
@@ -87,6 +99,7 @@ const handleCheckoutClick = () => {
           phone: '',
           addressLine: '',
           pincode: '',
+          paymentMethod: 'Cash on Delivery', // reset to default
         });
       } else {
         toast.error(data.msg || 'Something went wrong');
@@ -143,6 +156,9 @@ const handleCheckoutClick = () => {
               <p className="font-semibold text-md">
                 Total Price: ₹{totalPrice.toLocaleString()}
               </p>
+              <p className="text-green-700 font-medium">
+                Payment Method: {address.paymentMethod}
+              </p>
             </div>
 
             <button
@@ -176,7 +192,7 @@ const handleCheckoutClick = () => {
                 placeholder="Full Name"
                 value={address.fullName}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                 required
               />
               <input
@@ -185,7 +201,7 @@ const handleCheckoutClick = () => {
                 placeholder="Phone Number"
                 value={address.phone}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                 required
               />
               <textarea
@@ -193,7 +209,7 @@ const handleCheckoutClick = () => {
                 placeholder="Full Address"
                 value={address.addressLine}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 resize-none h-24 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full border border-gray-300 rounded-lg p-3 resize-none h-24 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                 required
               />
               <input
@@ -202,9 +218,26 @@ const handleCheckoutClick = () => {
                 placeholder="Pincode"
                 value={address.pincode}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
                 required
               />
+
+              {/* Cash on Delivery Option */}
+              <div className="flex items-center gap-2 border p-3 rounded-lg">
+                <input
+                  type="radio"
+                  id="cod"
+                  name="paymentMethod"
+                  value="Cash on Delivery"
+                  checked={address.paymentMethod === 'Cash on Delivery'}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="cod" className="text-gray-700">
+                  Cash on Delivery
+                </label>
+              </div>
+
               <button
                 type="submit"
                 className="bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg w-full font-semibold shadow-md transition duration-300"
