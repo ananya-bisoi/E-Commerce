@@ -6,23 +6,26 @@ const router = express.Router();
 
 // 🔹 POST /api/orders/create
 router.post('/create', auth, async (req, res) => {
-    // auth middleware sets req.user if token valid, else returns 401
   if (!req.user || !req.user.id) {
     return res.status(401).json({ msg: 'Unauthorized. Please login first.' });
   }
-  const { items, totalAmount, address } = req.body;
+
+  const { items, totalAmount, address, paymentMethod } = req.body;
+
   try {
     const order = new Order({
       userId: req.user.id,
       items,
       totalAmount,
       address,
+      paymentMethod
     });
 
     await order.save();
     res.status(201).json(order);
   } catch (err) {
-    res.status(500).json({ msg: 'Failed to place order' });
+    console.error('Order creation error:', err);
+    res.status(500).json({ msg: 'Failed to place order', error: err.message });
   }
 });
 
@@ -46,13 +49,11 @@ router.delete('/cancel/:orderId', auth, async (req, res) => {
       return res.status(403).json({ msg: 'Unauthorized' });
 
     await Order.findByIdAndDelete(order._id);
-
     res.json({ msg: 'Order cancelled successfully' });
   } catch (error) {
-    console.error('Cancel order error:', error);  // <--- Add this!
+    console.error('Cancel order error:', error);
     res.status(500).json({ msg: 'Server error' });
   }
 });
-
 
 export default router;

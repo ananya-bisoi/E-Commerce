@@ -8,12 +8,10 @@ const orderSchema = new mongoose.Schema({
   },
   items: [
     {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'products', // Assuming you have a products model
-      },
-      quantity: Number,
-      price: Number,
+      productName: { type: String, required: true },
+      image: String,
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true },
     }
   ],
   totalAmount: {
@@ -21,11 +19,14 @@ const orderSchema = new mongoose.Schema({
     required: true,
   },
   address: {
-    type: String,
-    required: true,
-  }
+    fullName: { type: String, required: true },
+    phone: { type: String, required: true },
+    addressLine: { type: String, required: true },
+    pincode: { type: String, required: true },
+  },
+  paymentMethod: { type: String, required: true },
 }, {
-  timestamps: true // adds createdAt and updatedAt
+  timestamps: true
 });
 
 export default mongoose.model('orders', orderSchema);
